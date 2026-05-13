@@ -1,22 +1,17 @@
 FROM php:8.2-fpm
 
-# Install system dependencies + Node.js
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     git \
     curl \
     unzip \
     zip \
-    gnupg \
     libpng-dev \
     libjpeg62-turbo-dev \
     libfreetype6-dev \
     libonig-dev \
     libxml2-dev \
     libzip-dev
-
-# Install Node.js
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
-    && apt-get install -y nodejs
 
 # Install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
@@ -42,17 +37,14 @@ COPY . .
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# Install frontend dependencies
-RUN npm install
+# Publish SendPortal assets
+RUN php artisan vendor:publish --tag=public --force
 
-# Build frontend assets
-RUN npm run production
-
-# Laravel permissions
+# Set Laravel permissions
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
 # Expose Railway port
 EXPOSE 8080
 
-# Start Laravel
+# Start Laravel server
 CMD php artisan serve --host=0.0.0.0 --port=8080
