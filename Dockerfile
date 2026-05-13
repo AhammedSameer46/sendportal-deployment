@@ -1,6 +1,6 @@
 FROM php:8.2-fpm
 
-# Install system dependencies + Node.js
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -11,12 +11,7 @@ RUN apt-get update && apt-get install -y \
     libfreetype6-dev \
     libonig-dev \
     libxml2-dev \
-    libzip-dev \
-    npm
-
-# Install Node.js 18
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
-    && apt-get install -y nodejs
+    libzip-dev
 
 # Install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
@@ -39,17 +34,12 @@ WORKDIR /var/www
 # Copy project files
 COPY . .
 
-# Install frontend dependencies
-RUN npm install
-
-# Build frontend assets
-RUN npm run prod
-
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# Publish SendPortal assets
-RUN php artisan vendor:publish --tag=public --force
+# Create fake mix manifest to satisfy Laravel Mix
+RUN mkdir -p public/vendor/sendportal \
+    && echo '{}' > public/vendor/sendportal/mix-manifest.json
 
 # Set Laravel permissions
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
