@@ -43,10 +43,13 @@ COPY . .
 RUN npm install
 
 # Build frontend assets
-RUN npm run production
+RUN npm run prod
 
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
+
+# Publish SendPortal assets
+RUN php artisan vendor:publish --tag=public --force
 
 # Set Laravel permissions
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
