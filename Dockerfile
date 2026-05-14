@@ -1,6 +1,6 @@
 FROM php:8.2-fpm
 
-# Install system dependencies + Node.js
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -11,9 +11,7 @@ RUN apt-get update && apt-get install -y \
     libfreetype6-dev \
     libonig-dev \
     libxml2-dev \
-    libzip-dev \
-    nodejs \
-    npm
+    libzip-dev
 
 # Install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
@@ -39,17 +37,14 @@ COPY . .
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# Install frontend dependencies
-RUN npm install
+# Publish SendPortal assets
+RUN php artisan vendor:publish --tag=public --force
 
-# Build frontend assets
-RUN npm run production
-
-# Set Laravel permissions
+# Set permissions
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
 # Expose Railway port
 EXPOSE 8080
 
-# Start Laravel server
+# Start Laravel
 CMD php artisan serve --host=0.0.0.0 --port=8080
