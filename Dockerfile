@@ -42,7 +42,7 @@ RUN php artisan vendor:publish --tag=public --force
 
 # Create required mix manifest
 RUN mkdir -p public/vendor/sendportal \
-    && echo '{}' > public/vendor/sendportal/mix-manifest.json
+    && echo '{"/app.css":"/app.css","/app.js":"/app.js"}' > public/vendor/sendportal/mix-manifest.json
 
 # Set Laravel permissions
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
