@@ -40,11 +40,15 @@ RUN composer install --no-dev --optimize-autoloader
 # Publish SendPortal assets
 RUN php artisan vendor:publish --tag=public --force
 
-# Set permissions
+# Create required mix manifest
+RUN mkdir -p public/vendor/sendportal \
+    && echo '{}' > public/vendor/sendportal/mix-manifest.json
+
+# Set Laravel permissions
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
 # Expose Railway port
 EXPOSE 8080
 
-# Start Laravel
+# Start Laravel server
 CMD php artisan serve --host=0.0.0.0 --port=8080
